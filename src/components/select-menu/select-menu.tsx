@@ -61,7 +61,7 @@ export class Select {
     );
   }
 
-  componentDidUnload() {
+  disconnectedCallback() {
     this.select.destroy();
   }
 

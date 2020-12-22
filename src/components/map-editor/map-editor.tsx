@@ -155,7 +155,7 @@ export class RLMapEditor {
       if (this.imgSize &&
         this.imgSize.width === img.width &&
         this.imgSize.height === img.height) {
-          return;
+        return;
       }
 
       this.imgSize = { width: img.width, height: img.height };
@@ -213,6 +213,11 @@ export class RLMapEditor {
     this.onResize();
   }
 
+  @Prop() _update: boolean = false;
+
+  forceUpdate() { this._update = !this._update; }
+
+
   /**
    * Handles when the user triggers a touch/down event to start interaction with
    * the map.
@@ -230,7 +235,7 @@ export class RLMapEditor {
     if (this.state === STATES.ADD_REGION_INIT) {
       if (this.activeElement && this.activeElement instanceof MapPolygon) {
         this.activeElement.addPoint(this.toSvgSpace(this.start));
-        this.root.forceUpdate();
+        this.forceUpdate();
       }
 
       this.state = STATES.ADD_REGION_FIRST;
@@ -243,7 +248,7 @@ export class RLMapEditor {
 
       if (e.target && e.target instanceof SVGCircleElement) {
         if (e.target.classList.contains('rl-svg__control') ||
-            e.target.classList.contains('rl-svg__midpoint')) {
+          e.target.classList.contains('rl-svg__midpoint')) {
           this.targetControl = Number(e.target.dataset.index);
         }
       }
@@ -293,12 +298,12 @@ export class RLMapEditor {
               this.toSvgScale(delta),
               this.targetControl / 2
             );
-            this.root.forceUpdate();
+            this.forceUpdate();
           }
         } else if (this.targetElement && this.activeElement &&
-            this.activeElement.id === this.targetElement.id) {
+          this.activeElement.id === this.targetElement.id) {
           this.targetElement.move(this.toSvgScale(delta));
-          this.root.forceUpdate();
+          this.forceUpdate();
         } else {
           // Move the canvas otherwise.
           if (this.limits !== undefined) {
@@ -314,7 +319,7 @@ export class RLMapEditor {
           if (this.activeElement && this.activeElement instanceof MapPolygon && dist > HYSTERESIS) {
             this.state = STATES.ADD_REGION;
             this.activeElement.addPoint(this.toSvgSpace(point));
-            this.root.forceUpdate();
+            this.forceUpdate();
           }
         }
         break;
@@ -322,7 +327,7 @@ export class RLMapEditor {
         if (this.activeElement && this.activeElement instanceof MapPolygon) {
           const idx = this.activeElement.points.length - 1;
           this.activeElement.movePoint(this.toSvgScale(delta), idx);
-          this.root.forceUpdate();
+          this.forceUpdate();
         }
         break;
       default:
@@ -363,14 +368,14 @@ export class RLMapEditor {
             this.targetControl / 2
           );
           this.elementUpdated.emit(
-              this.mapElementFromParsedElement(this.activeElement));
+            this.mapElementFromParsedElement(this.activeElement));
         } else if (this.targetElement && this.activeElement &&
-            this.activeElement.id === this.targetElement.id) {
+          this.activeElement.id === this.targetElement.id) {
           // Move the targeted element, if there is one.
           this.activeElement.move(this.toSvgScale(delta));
 
           this.elementUpdated.emit(
-              this.mapElementFromParsedElement(this.activeElement));
+            this.mapElementFromParsedElement(this.activeElement));
         } else {
           // Move the canvas otherwise.
           if (this.limits) {
@@ -392,9 +397,9 @@ export class RLMapEditor {
             // a line to the cursor.
             this.activeElement.removePoint();
             this.state = STATES.NORMAL;
-            this.root.forceUpdate();
+            this.forceUpdate();
             this.elementCreated.emit(
-                this.mapElementFromParsedElement(this.activeElement)
+              this.mapElementFromParsedElement(this.activeElement)
             );
           } else {
             // Add a new point to the active controls array.
@@ -406,7 +411,7 @@ export class RLMapEditor {
         if (this.activeElement && this.activeElement instanceof MapMarker && this.root) {
           this.activeElement.position = this.toSvgSpace(point);
           this.state = STATES.NORMAL;
-          this.root.forceUpdate();
+          this.forceUpdate();
           this.elementCreated.emit(
             this.mapElementFromParsedElement(this.activeElement)
           );
@@ -425,7 +430,7 @@ export class RLMapEditor {
   @Listen('mouseleave')
   onMouseLeave(e: Event) {
     if (this.state === STATES.DRAGGING ||
-        this.state === STATES.GESTURE_DOWN) {
+      this.state === STATES.GESTURE_DOWN) {
       this.state = STATES.NORMAL;
       const point = coordinateFromEvent(e, this.root);
 
@@ -439,14 +444,14 @@ export class RLMapEditor {
           );
 
           this.elementUpdated.emit(
-              this.mapElementFromParsedElement(this.activeElement));
+            this.mapElementFromParsedElement(this.activeElement));
         } else if (this.targetElement && this.activeElement &&
-            this.activeElement.id === this.targetElement.id) {
+          this.activeElement.id === this.targetElement.id) {
           // Move the targeted element, if there is one.
           this.activeElement.move(this.toSvgScale(delta));
 
           this.elementUpdated.emit(
-              this.mapElementFromParsedElement(this.activeElement));
+            this.mapElementFromParsedElement(this.activeElement));
         } else {
           // Move the canvas otherwise.
           if (this.limits !== undefined) {
@@ -520,7 +525,7 @@ export class RLMapEditor {
   onEnter(e: KeyboardEvent) {
     if (e.key === 'enter' && e.target && e.target instanceof SVGElement &&
       (e.target.classList.contains('rl-svg__polygon') ||
-      e.target.classList.contains('rl-svg__marker'))) {
+        e.target.classList.contains('rl-svg__marker'))) {
       const id = Number(e.target.id);
       const el = this.processedElements.find(i => i.id === id);
       this._setActiveElement(el);
@@ -645,7 +650,7 @@ export class RLMapEditor {
       this.svgScale = this.initialScale = 1;
     } else {
       this.svgScale = this.initialScale =
-          Math.max(size.width / imgSize.width, size.height / imgSize.height);
+        Math.max(size.width / imgSize.width, size.height / imgSize.height);
     }
 
     this.processedElements.forEach(el => el.scale = this.svgScale);
